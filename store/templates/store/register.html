@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Perfume World{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-box {
+        max-width: 500px;
+        margin: 60px auto;
+        border: 1px solid var(--border-color);
+        padding: 40px;
+        border-radius: 4px;
+        background-color: var(--white);
+        box-shadow: var(--shadow);
+        border-top: 4px solid var(--secondary);
+    }
+
+    .auth-title {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+        transition: var(--transition);
+        background-color: var(--white);
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+        border-color: var(--secondary);
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 10px;
+    }
+
+    .btn-auth:hover {
+        background-color: var(--secondary);
+        color: var(--primary);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .auth-footer a {
+        color: var(--secondary-dark);
+        font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-box">
+        <h2 class="auth-title">Register</h2>
+        
+        <form action="{% url 'store:register' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" method="post">
+            {% csrf_token %}
+            
+            <!-- Standard form errors if any -->
+            {% if form.errors %}
+                <div style="background-color: #fdebee; border: 1px solid #f8cbd0; color: #d32f2f; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
+                    Please correct the errors below.
+                </div>
+            {% endif %}
+
+            <!-- Username and passwords -->
+            <div class="form-group">
+                <label for="id_username">Username *</label>
+                <input type="text" name="username" id="id_username" placeholder="Choose a username" required>
+                {% if form.username.errors %}
+                    <span style="color:red; font-size:11px;">{{ form.username.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Password *</label>
+                <input type="password" name="password1" id="id_password1" placeholder="Enter password" required>
+                {% if form.password1.errors %}
+                    <span style="color:red; font-size:11px;">{{ form.password1.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Confirm Password *</label>
+                <input type="password" name="password2" id="id_password2" placeholder="Confirm password" required>
+                {% if form.password2.errors %}
+                    <span style="color:red; font-size:11px;">{{ form.password2.errors.0 }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Extra shipping profile details -->
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter your contact phone number">
+            </div>
+
+            <div class="form-group">
+                <label for="address">Shipping Address</label>
+                <textarea id="address" name="address" rows="3" placeholder="Enter default delivery address"></textarea>
+            </div>
+            
+            <button type="submit" class="btn-auth">Register</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="{% url 'store:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Log In Here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

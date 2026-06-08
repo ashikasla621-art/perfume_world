@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Perfume World - Home of Original Perfumes{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #111111;
+            --secondary: #c5a880;
+            --secondary-dark: #a98d65;
+            --accent: #d4af37;
+            --bg-light: #fafafa;
+            --border-color: #eaeaea;
+            --text-dark: #222222;
+            --text-muted: #777777;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--white);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        button, input, textarea, select {
+            font-family: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* HEADER styling */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .top-bar {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 8px 0;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .top-bar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar-links a {
+            margin-left: 20px;
+            color: #ccc;
+        }
+
+        .top-bar-links a:hover {
+            color: var(--secondary);
+        }
+
+        .main-header {
+            padding: 15px 0;
+        }
+
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo img {
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .search-form {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            position: relative;
+        }
+
+        .search-form input {
+            width: 100%;
+            padding: 10px 15px;
+            padding-right: 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: #f7f7f7;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-form input:focus {
+            background-color: var(--white);
+            border-color: var(--secondary);
+        }
+
+        .search-form button {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 45px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .search-form button:hover {
+            color: var(--secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .action-item {
+            position: relative;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .action-item .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--secondary);
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* NAVIGATION MENU */
+        nav {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+        }
+
+        .nav-menu > li {
+            position: relative;
+        }
+
+        .nav-menu > li > a {
+            display: block;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+        }
+
+        .nav-menu > li > a:hover, 
+        .nav-menu > li.active > a {
+            color: var(--secondary);
+        }
+
+        /* DROPDOWN MENU */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            min-width: 200px;
+            display: none;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .nav-menu > li:hover .dropdown-menu {
+            display: grid;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dropdown-menu a {
+            padding: 5px 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            white-space: nowrap;
+        }
+
+        .dropdown-menu a:hover {
+            color: var(--secondary);
+            background-color: #fafafa;
+        }
+
+        /* MESSAGE ALERTS */
+        .messages {
+            margin: 20px 0;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-success {
+            background-color: #e6f7ed;
+            color: #1b8a5a;
+            border: 1px solid #c2ebd4;
+        }
+
+        .alert-error, .alert-danger {
+            background-color: #fdebee;
+            color: #d32f2f;
+            border: 1px solid #f8cbd0;
+        }
+
+        .alert-warning {
+            background-color: #fff9e6;
+            color: #b27a00;
+            border: 1px solid #ffeeb3;
+        }
+
+        .alert-close {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* FOOTER styling */
+        footer {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 60px 0 20px;
+            margin-top: 60px;
+            border-top: 5px solid var(--secondary);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-logo img {
+            height: 45px;
+            margin-bottom: 20px;
+        }
+
+        .footer-about p {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #222;
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .social-icons a:hover {
+            background-color: var(--secondary);
+            color: var(--primary);
+        }
+
+        .footer-col h4 {
+            font-size: 18px;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 8px;
+            color: var(--white);
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--secondary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+            padding-left: 5px;
+        }
+
+        .contact-list {
+            list-style: none;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .contact-list li {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .contact-list i {
+            color: var(--secondary);
+            margin-top: 3px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding-top: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .sslcommerz-footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .sslcommerz-footer img {
+            max-width: 100%;
+            max-height: 50px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .search-form {
+                max-width: 100%;
+                width: 100%;
+            }
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+            .nav-menu > li > a {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="container">
+            <div>Original Perfumes Direct to Your Doorstep</div>
+            <div class="top-bar-links">
+                {% if user.is_authenticated %}
+                    <span>Hello, {{ user.username }}</span>
+                    <a href="{% url 'store:logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
+                {% else %}
+                    <a href="{% url 'store:login' %}"><i class="fa fa-sign-in-alt"></i> Log in</a>
+                    <a href="{% url 'store:register' %}"><i class="fa fa-user-plus"></i> Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="main-header">
+        <div class="container">
+            <!-- Logo -->
+            <a href="{% url 'store:home' %}" class="logo">
+                <img src="https://perfumeworld.com.bd/images/thumbs/0000438_0000420_logo.png" alt="Perfume World Logo">
+            </a>
+
+            <!-- Search -->
+            <form action="{% url 'store:shop' %}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search brands, perfumes, collections..." value="{{ query|default:'' }}">
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+
+            <!-- Actions -->
+            <div class="header-actions">
+                <a href="{% url 'store:shop' %}" class="action-item" title="Shop All">
+                    <i class="fa fa-store" style="color: var(--text-dark);"></i>
+                </a>
+                <a href="{% url 'store:cart_detail' %}" class="action-item" title="Cart">
+                    <i class="fa fa-shopping-bag" style="color: var(--text-dark);"></i>
+                    {% if cart|length > 0 %}
+                        <span class="badge">{{ cart|length }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION BAR -->
+    <nav>
+        <div class="container">
+            <ul class="nav-menu">
+                <li><a href="{% url 'store:home' %}">Home</a></li>
+                <li><a href="{% url 'store:shop' %}">All Perfumes</a></li>
+                <li class="has-dropdown">
+                    <a href="#">Categories <i class="fa fa-chevron-down" style="font-size: 10px;"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'store:shop' %}?category=perfume">Perfume</a>
+                        <a href="{% url 'store:shop' %}?category=perfume-set">Perfume Set</a>
+                        <a href="{% url 'store:shop' %}?category=body-product">Body Product</a>
+                        <a href="{% url 'store:shop' %}?category=makeup">Makeup</a>
+                        <a href="{% url 'store:shop' %}?category=hair-care">Hair Care</a>
+                    </div>
+                </li>
+                <li class="has-dropdown">
+                    <a href="#">Brands <i class="fa fa-chevron-down" style="font-size: 10px;"></i></a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'store:shop' %}?brand=chanel">Chanel</a>
+                        <a href="{% url 'store:shop' %}?brand=dior">Dior</a>
+                        <a href="{% url 'store:shop' %}?brand=versace">Versace</a>
+                        <a href="{% url 'store:shop' %}?brand=creed">Creed</a>
+                        <a href="{% url 'store:shop' %}?brand=tom-ford">Tom Ford</a>
+                        <a href="{% url 'store:shop' %}?brand=carolina-herrera">Carolina Herrera</a>
+                    </div>
+                </li>
+                <li><a href="{% url 'store:contact_us' %}">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ALERTS / MESSAGES -->
+    <div class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                        <span class="alert-close" onclick="this.parentElement.style.display='none';">&times;</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <!-- About Column -->
+                <div class="footer-col footer-about">
+                    <a href="{% url 'store:home' %}"><img src="https://perfumeworld.com.bd/images/thumbs/0000438_0000420_logo.png" alt="Perfume World"></a>
+                    <p>Perfume World is the leading distributor of 100% original, luxury perfume brands in Bangladesh. Experience real luxury scents.</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/perfumeworld.com.bd" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/perfumeworld.com.bd/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Info Column -->
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'store:shop' %}">Browse Collections</a></li>
+                        <li><a href="{% url 'store:contact_us' %}">Store Locations</a></li>
+                        <li><a href="#">Shipping & Returns</a></li>
+                        <li><a href="#">Privacy Notice</a></li>
+                    </ul>
+                </div>
+
+                <!-- Account Column -->
+                <div class="footer-col">
+                    <h4>My Account</h4>
+                    <ul class="footer-links">
+                        {% if user.is_authenticated %}
+                            <li><a href="#">My Account</a></li>
+                            <li><a href="{% url 'store:cart_detail' %}">Shopping Cart</a></li>
+                        {% else %}
+                            <li><a href="{% url 'store:login' %}">Sign In</a></li>
+                            <li><a href="{% url 'store:register' %}">Create Account</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Contact Column -->
+                <div class="footer-col">
+                    <h4>Contact Info</h4>
+                    <ul class="contact-list">
+                        <li>
+                            <i class="fa fa-phone-alt"></i>
+                            <span>01781-474065</span>
+                        </li>
+                        <li>
+                            <i class="fa fa-envelope"></i>
+                            <span>info@perfumeworld.com.bd</span>
+                        </li>
+                        <li>
+                            <i class="fa fa-map-marker-alt"></i>
+                            <span>Level 1, Block C, Shop 97-98, Bashundhara City Shopping Mall, Dhaka-1205</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SSLCommerz Banner -->
+            <div class="sslcommerz-footer">
+                <img src="https://securepay.sslcommerz.com/public/image/SSLCommerz-Pay-With-logo-All-Size-03.png" alt="SSLCommerz Secured Payments">
+            </div>
+
+            <!-- Copyright -->
+            <div class="footer-bottom">
+                <p>Copyright &copy; 2026 Perfume World Bangladesh. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

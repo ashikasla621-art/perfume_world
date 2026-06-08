@@ -1,0 +1,697 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfume World - Home of Original Perfumes{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* HERO SLIDER */
+    .hero-slider {
+        position: relative;
+        height: 400px;
+        overflow: hidden;
+        background-color: #000;
+        margin-bottom: 50px;
+    }
+
+    .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .slider-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        background: rgba(255,255,255,0.7);
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: var(--transition);
+    }
+
+    .slider-btn:hover {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .slider-prev { left: 20px; }
+    .slider-next { right: 20px; }
+
+    /* CATEGORY GRID */
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .section-title h2 {
+        font-size: 32px;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        background-color: var(--secondary);
+        margin: 0 auto;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+
+    .category-card {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+        border-radius: 4px;
+        box-shadow: var(--shadow);
+    }
+
+    .category-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .category-card:hover img {
+        transform: scale(1.08);
+    }
+
+    .category-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 30px;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+        color: var(--white);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    .category-overlay h3 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .category-overlay span {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--secondary);
+    }
+
+    /* FEATURED PRODUCTS */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+
+    .product-card {
+        background-color: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: var(--transition);
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border-color: var(--secondary);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background-color: var(--secondary);
+        color: var(--white);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        text-transform: uppercase;
+        border-radius: 2px;
+        z-index: 10;
+    }
+
+    .product-img {
+        height: 280px;
+        overflow: hidden;
+        background: #fbfbfb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .product-img img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: var(--transition);
+    }
+
+    .product-card:hover .product-img img {
+        transform: scale(1.05);
+    }
+
+    .product-details {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-brand {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--secondary-dark);
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .product-name {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 44px;
+    }
+
+    .product-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .product-price {
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--primary);
+    }
+
+    .product-size {
+        font-size: 12px;
+        color: var(--text-muted);
+        background-color: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .btn-add-cart {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: var(--transition);
+    }
+
+    .btn-add-cart:hover {
+        background-color: var(--secondary);
+        color: var(--primary);
+    }
+
+    /* BRANDS SCROLL */
+    .brands-section {
+        background-color: var(--bg-light);
+        padding: 60px 0;
+        margin-bottom: 60px;
+    }
+
+    .brands-slider {
+        display: flex;
+        overflow-x: auto;
+        gap: 40px;
+        padding: 20px 0;
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .brands-slider::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
+    }
+
+    .brand-logo-card {
+        flex: 0 0 140px;
+        height: 80px;
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: var(--transition);
+    }
+
+    .brand-logo-card:hover {
+        border-color: var(--secondary);
+        transform: scale(1.05);
+    }
+
+    .brand-logo-card img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: contain;
+    }
+
+    /* MIDDLE CONTENT - POLL & BLOGS */
+    .middle-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 40px;
+        margin-bottom: 60px;
+    }
+
+    /* BLOG */
+    .blog-list {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .blog-item {
+        display: flex;
+        gap: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .blog-item img {
+        width: 200px;
+        height: 150px;
+        object-fit: cover;
+    }
+
+    .blog-info {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .blog-date {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--secondary);
+        font-weight: bold;
+    }
+
+    .blog-item h3 {
+        font-size: 18px;
+        margin: 5px 0 10px;
+    }
+
+    .blog-item p {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.4;
+    }
+
+    /* POLLS */
+    .polls-box {
+        border: 1px solid var(--border-color);
+        padding: 25px;
+        border-radius: 4px;
+        background-color: var(--white);
+    }
+
+    .poll-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--secondary);
+        padding-bottom: 10px;
+    }
+
+    .poll-question {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .poll-options {
+        list-style: none;
+        margin-bottom: 20px;
+    }
+
+    .poll-options li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+    }
+
+    .btn-vote {
+        padding: 8px 20px;
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-vote:hover {
+        background-color: var(--secondary);
+        color: var(--primary);
+    }
+
+    /* NEWSLETTER SECTION */
+    .newsletter-section {
+        background-color: var(--primary);
+        color: var(--white);
+        padding: 60px 0;
+        text-align: center;
+        border-radius: 4px;
+        margin-bottom: 60px;
+    }
+
+    .newsletter-section h2 {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: var(--white);
+    }
+
+    .newsletter-section p {
+        color: #bbb;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .newsletter-form {
+        display: flex;
+        justify-content: center;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .newsletter-form input {
+        flex: 1;
+        padding: 15px;
+        border: none;
+        border-radius: 4px 0 0 4px;
+        outline: none;
+        color: var(--text-dark);
+    }
+
+    .newsletter-form button {
+        padding: 0 30px;
+        background-color: var(--secondary);
+        color: var(--primary);
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 0 4px 4px 0;
+        transition: var(--transition);
+    }
+
+    .newsletter-form button:hover {
+        background-color: var(--secondary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .hero-slider { height: 250px; }
+        .middle-grid { grid-template-columns: 1fr; }
+        .blog-item { flex-direction: column; }
+        .blog-item img { width: 100%; height: 200px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- HERO SLIDER -->
+    <div class="hero-slider">
+        <div class="slide active">
+            <img src="https://perfumeworld.com.bd/images/thumbs/0000996_Untitled-1.png" alt="Dior Collection Banner">
+        </div>
+        <div class="slide">
+            <img src="https://perfumeworld.com.bd/images/thumbs/0001764_ABC.jpeg" alt="Carolina Herrera Banner">
+        </div>
+        <div class="slide">
+            <img src="https://perfumeworld.com.bd/images/thumbs/0001899_Chanel-Chance-Perfume-Ad-Featured.jpeg" alt="Chanel Chance Banner">
+        </div>
+        <div class="slide">
+            <img src="https://perfumeworld.com.bd/images/thumbs/0001768_Banner Versace.jpeg" alt="Versace Banner">
+        </div>
+        <button class="slider-btn slider-prev" onclick="moveSlide(-1)"><i class="fa fa-chevron-left"></i></button>
+        <button class="slider-btn slider-next" onclick="moveSlide(1)"><i class="fa fa-chevron-right"></i></button>
+    </div>
+
+    <div class="container">
+        <!-- CATEGORIES SECTION -->
+        <div class="section-title">
+            <h2>Shop By Category</h2>
+        </div>
+        <div class="categories-grid">
+            <a href="{% url 'store:shop' %}?category=perfume" class="category-card">
+                <img src="https://perfumeworld.com.bd/images/thumbs/0000186_perfume_450.jpeg" alt="Perfume">
+                <div class="category-overlay">
+                    <h3>Perfume</h3>
+                    <span>Eau De Toilette, Parfum</span>
+                </div>
+            </a>
+            <a href="{% url 'store:shop' %}?category=perfume-set" class="category-card">
+                <img src="https://perfumeworld.com.bd/images/thumbs/0000191_perfume-set_450.jpeg" alt="Perfume Set">
+                <div class="category-overlay">
+                    <h3>Perfume Set</h3>
+                    <span>Men & Women Sets</span>
+                </div>
+            </a>
+            <a href="{% url 'store:shop' %}?category=body-product" class="category-card">
+                <img src="https://perfumeworld.com.bd/images/thumbs/0000195_body-product_450.jpeg" alt="Body Products">
+                <div class="category-overlay">
+                    <h3>Body Product</h3>
+                    <span>Deodorant, Body Lotion</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- FEATURED PRODUCTS SECTION -->
+        <div class="section-title">
+            <h2>Featured Products</h2>
+        </div>
+        <div class="products-grid">
+            {% for product in featured_products %}
+                <div class="product-card">
+                    {% if product.discount_price %}
+                        <div class="product-badge">Sale</div>
+                    {% endif %}
+                    <a href="{% url 'store:product_detail' product.slug %}" class="product-img">
+                        <img src="{{ product.image_url|default:'https://via.placeholder.com/200' }}" alt="{{ product.name }}">
+                    </a>
+                    <div class="product-details">
+                        <div>
+                            <div class="product-brand">{{ product.brand.name }}</div>
+                            <h3 class="product-name">
+                                <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
+                            </h3>
+                        </div>
+                        <div>
+                            <div class="product-meta">
+                                <div class="product-price">
+                                    {% if product.discount_price %}
+                                        <span style="color: red;">{{ product.discount_price }} ৳</span>
+                                        <span style="text-decoration: line-through; font-size: 14px; color: #888; margin-left: 5px;">{{ product.price }} ৳</span>
+                                    {% else %}
+                                        <span>{{ product.price }} ৳</span>
+                                    {% endif %}
+                                </div>
+                                <span class="product-size">{{ product.size_ml }}</span>
+                            </div>
+                            <form action="{% url 'store:cart_add' product.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-add-cart">
+                                    <i class="fa fa-shopping-cart"></i> Add to cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- BRANDS LIST SECTION -->
+    <div class="brands-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Available Brands</h2>
+            </div>
+            <div class="brands-slider">
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=dior"><img src="https://perfumeworld.com.bd/images/thumbs/0000763_dior_345.png" alt="Dior"></a>
+                </div>
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=chanel"><img src="https://perfumeworld.com.bd/images/thumbs/0000774_chanel_345.png" alt="Chanel"></a>
+                </div>
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=versace"><img src="https://perfumeworld.com.bd/images/thumbs/0000758_versace_345.png" alt="Versace"></a>
+                </div>
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=tom-ford"><img src="https://perfumeworld.com.bd/images/thumbs/0000777_tom-ford_345.png" alt="Tom Ford"></a>
+                </div>
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=creed"><img src="https://perfumeworld.com.bd/images/thumbs/0001251_creed_345.jpeg" alt="Creed"></a>
+                </div>
+                <div class="brand-logo-card">
+                    <a href="{% url 'store:shop' %}?brand=carolina-herrera"><img src="https://perfumeworld.com.bd/images/thumbs/0000790_carolina-herrera_345.png" alt="Carolina Herrera"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MIDDLE SECTION: BLOGS & POLLS -->
+    <div class="container">
+        <div class="middle-grid">
+            <!-- Blogs Column -->
+            <div>
+                <div class="section-title" style="text-align: left; margin-bottom: 25px;">
+                    <h2>Latest From Blog</h2>
+                </div>
+                <div class="blog-list">
+                    {% for blog in blogs %}
+                        <div class="blog-item">
+                            <img src="{{ blog.image_url }}" alt="{{ blog.title }}">
+                            <div class="blog-info">
+                                <div>
+                                    <span class="blog-date">{{ blog.date }}</span>
+                                    <h3>{{ blog.title }}</h3>
+                                    <p>{{ blog.description }}</p>
+                                </div>
+                                <a href="#" style="color: var(--secondary); font-weight: bold; font-size: 13px;">Read More &rarr;</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Polls Column -->
+            <div>
+                <div class="section-title" style="text-align: left; margin-bottom: 25px;">
+                    <h2>Community Poll</h2>
+                </div>
+                <div class="polls-box">
+                    <div class="poll-question">Which perfume do you want to buy in this month?</div>
+                    <ul class="poll-options">
+                        <li><input type="radio" id="p1" name="poll1"><label for="p1">Dior Sauvage</label></li>
+                        <li><input type="radio" id="p2" name="poll1"><label for="p2">Versace Eros</label></li>
+                        <li><input type="radio" id="p3" name="poll1"><label for="p3">Chanel Chance</label></li>
+                        <li><input type="radio" id="p4" name="poll1"><label for="p4">Afnan 9pm</label></li>
+                    </ul>
+                    <button class="btn-vote" onclick="alert('Thank you for voting!')">Vote</button>
+
+                    <div class="poll-question" style="margin-top: 30px;">Are you satisfied buying perfumes from Perfume World?</div>
+                    <ul class="poll-options">
+                        <li><input type="radio" id="s1" name="poll2"><label for="s1">Very Satisfied</label></li>
+                        <li><input type="radio" id="s2" name="poll2"><label for="s2">Satisfied</label></li>
+                        <li><input type="radio" id="s3" name="poll2"><label for="s3">No Comment</label></li>
+                    </ul>
+                    <button class="btn-vote" onclick="alert('Thank you for voting!')">Vote</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEWSLETTER -->
+        <div class="newsletter-section">
+            <h2>Newsletter Signup</h2>
+            <p>Subscribe to our newsletter to receive updates on new arrivals, special offers and store events.</p>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed successfully!');">
+                <input type="email" placeholder="Enter your email address here..." required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let slideIndex = 0;
+    const slides = document.querySelectorAll('.slide');
+
+    function showSlides() {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slideIndex++;
+        if (slideIndex > slides.length) { slideIndex = 1; }
+        slides[slideIndex - 1].classList.add('active');
+        setTimeout(showSlides, 5000); // Change image every 5 seconds
+    }
+
+    function moveSlide(n) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slideIndex += n - 1; // Adjust index because showSlides increments it
+        if (slideIndex < 0) { slideIndex = slides.length - 1; }
+        if (slideIndex >= slides.length) { slideIndex = 0; }
+        
+        slides[slideIndex].classList.add('active');
+        slideIndex++; // Sync with loop increment
+    }
+
+    // Initialize auto-sliding
+    setTimeout(showSlides, 5000);
+</script>
+{% endblock %}

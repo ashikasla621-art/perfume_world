@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}SSLCommerz Secured Payment Gateway - Perfume World{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-portal-wrapper {
+        max-width: 650px;
+        margin: 50px auto;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        background-color: var(--white);
+    }
+
+    .gateway-header {
+        background-color: #f8f9fa;
+        padding: 20px 30px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .gateway-header h2 {
+        font-size: 20px;
+        color: #1b4f72;
+    }
+
+    .order-summary-box {
+        padding: 20px 30px;
+        background-color: #ebf5fb;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+    }
+
+    .gateway-body {
+        padding: 30px;
+    }
+
+    .gateway-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 25px;
+    }
+
+    .gateway-tab {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--text-muted);
+        border-bottom: 3px solid transparent;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .gateway-tab.active {
+        color: #1b4f72;
+        border-bottom-color: #2874a6;
+    }
+
+    .gateway-channels {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .channel-card {
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .channel-card:hover, .channel-card.active {
+        border-color: #2874a6;
+        background-color: #f4f6f7;
+    }
+
+    .channel-card img {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .channel-card span {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .btn-pay-secure {
+        width: 100%;
+        padding: 15px;
+        background-color: #28b463;
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: var(--transition);
+    }
+
+    .btn-pay-secure:hover {
+        background-color: #239b56;
+    }
+
+    .gateway-footer {
+        padding: 15px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-muted);
+        border-top: 1px solid var(--border-color);
+        background-color: #fbfbfb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="payment-portal-wrapper">
+        <!-- Header -->
+        <div class="gateway-header">
+            <h2><i class="fa fa-shield-alt" style="color:#2874a6;"></i> SSLCommerz Secured Pay</h2>
+            <img src="https://securepay.sslcommerz.com/public/image/SSLCommerz-Pay-With-logo-All-Size-03.png" alt="SSLCommerz" style="height: 30px;">
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary-box">
+            <div>
+                <strong>Order ID:</strong> #{{ order.id }}<br>
+                <span style="color:var(--text-muted);">Customer: {{ order.shipping_name }}</span>
+            </div>
+            <div style="text-align: right;">
+                <strong>Amount to Pay:</strong><br>
+                <span style="font-size: 18px; color: #111; font-weight: 700;">{{ order.total_amount }} ৳</span>
+            </div>
+        </div>
+
+        <!-- Gateway Options -->
+        <div class="gateway-body">
+            <div class="gateway-tabs">
+                <div class="gateway-tab active" onclick="switchTab('mobile')">Mobile Banking</div>
+                <div class="gateway-tab" onclick="switchTab('cards')">Cards / Net Banking</div>
+            </div>
+
+            <form action="{% url 'store:payment_portal' order.id %}" method="post" id="payment-form">
+                {% csrf_token %}
+                <input type="hidden" name="gateway" id="selected-gateway" value="bkash">
+
+                <!-- Mobile Banking Channels -->
+                <div class="gateway-channels" id="mobile-channels">
+                    <div class="channel-card active" onclick="selectGateway('bkash', this)">
+                        <img src="https://static.dhakatribune.com/uploads/2021/04/bkash-1618635835619.jpg" alt="bKash" style="border-radius:4px;">
+                        <span>bKash</span>
+                    </div>
+                    <div class="channel-card" onclick="selectGateway('nagad', this)">
+                        <img src="https://www.lankabangla.com/wp-content/uploads/2020/09/nagad-logo.png" alt="Nagad">
+                        <span>Nagad</span>
+                    </div>
+                    <div class="channel-card" onclick="selectGateway('rocket', this)">
+                        <img src="https://www.du.ac.bd/fontView/assets/img/rocket.png" alt="Rocket">
+                        <span>Rocket</span>
+                    </div>
+                </div>
+
+                <!-- Card Banking Channels (Hidden by default) -->
+                <div class="gateway-channels" id="card-channels" style="display: none;">
+                    <div class="channel-card" onclick="selectGateway('visa', this)">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d6/Visa_2021.svg" alt="Visa">
+                        <span>Visa Card</span>
+                    </div>
+                    <div class="channel-card" onclick="selectGateway('mastercard', this)">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+                        <span>Mastercard</span>
+                    </div>
+                    <div class="channel-card" onclick="selectGateway('dbbl', this)">
+                        <img src="https://brandlogos.net/wp-content/uploads/2022/07/dutch-bangla_bank-logo_brandlogos.net_y4tqm-512x512.png" alt="DBBL Nexus">
+                        <span>DBBL Nexus</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-pay-secure">
+                    <i class="fa fa-lock"></i> Pay Securely {{ order.total_amount }} ৳
+                </button>
+            </form>
+        </div>
+
+        <!-- Security Badge Footer -->
+        <div class="gateway-footer">
+            <i class="fa fa-lock" style="color: green;"></i> 128-bit SSL Encrypted Connection | Secured by SSLCommerz Merchant Services
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tab) {
+        const tabs = document.querySelectorAll('.gateway-tab');
+        const mobileDiv = document.getElementById('mobile-channels');
+        const cardDiv = document.getElementById('card-channels');
+
+        tabs.forEach(t => t.classList.remove('active'));
+
+        if (tab === 'mobile') {
+            event.target.classList.add('active');
+            mobileDiv.style.display = 'grid';
+            cardDiv.style.display = 'none';
+            selectGateway('bkash', mobileDiv.children[0]);
+        } else {
+            event.target.classList.add('active');
+            mobileDiv.style.display = 'none';
+            cardDiv.style.display = 'grid';
+            selectGateway('visa', cardDiv.children[0]);
+        }
+    }
+
+    function selectGateway(name, element) {
+        // Remove active class from all channel cards
+        const cards = document.querySelectorAll('.channel-card');
+        cards.forEach(c => c.classList.remove('active'));
+
+        // Add to current
+        element.classList.add('active');
+
+        // Set input value
+        document.getElementById('selected-gateway').value = name;
+    }
+</script>
+{% endblock %}

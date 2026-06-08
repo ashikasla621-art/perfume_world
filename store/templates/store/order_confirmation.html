@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - Perfume World{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invoice-wrapper {
+        max-width: 800px;
+        margin: 50px auto;
+        border: 1px solid var(--border-color);
+        padding: 40px;
+        border-radius: 4px;
+        background-color: var(--white);
+        box-shadow: var(--shadow);
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .invoice-logo img {
+        height: 40px;
+    }
+
+    .invoice-title {
+        text-align: right;
+    }
+
+    .invoice-title h1 {
+        font-size: 28px;
+        text-transform: uppercase;
+        color: var(--primary);
+    }
+
+    .invoice-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+        font-size: 14px;
+    }
+
+    .invoice-bill-to h3, .invoice-ship-to h3 {
+        font-size: 14px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        color: var(--secondary-dark);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5px;
+    }
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 40px;
+        font-size: 14px;
+    }
+
+    .invoice-table th, .invoice-table td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .invoice-table th {
+        background-color: var(--bg-light);
+        border-bottom: 2px solid var(--border-color);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 11px;
+    }
+
+    .invoice-table td {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .invoice-totals {
+        width: 300px;
+        margin-left: auto;
+        margin-bottom: 40px;
+        font-size: 14px;
+    }
+
+    .invoice-totals-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .invoice-totals-row.grand-total {
+        font-size: 18px;
+        font-weight: 700;
+        border-bottom: none;
+        color: var(--primary);
+    }
+
+    .invoice-status-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-paid {
+        background-color: #e6f7ed;
+        color: #1b8a5a;
+    }
+
+    .badge-unpaid {
+        background-color: #fff9e6;
+        color: #b27a00;
+    }
+
+    .btn-print {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-right: 15px;
+    }
+
+    .btn-print:hover {
+        background-color: var(--secondary);
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="invoice-wrapper" id="printable-invoice">
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+            <div class="invoice-logo">
+                <img src="https://perfumeworld.com.bd/images/thumbs/0000438_0000420_logo.png" alt="Perfume World">
+            </div>
+            <div class="invoice-title">
+                <h1>Invoice</h1>
+                <span style="font-size: 13px; color: var(--text-muted);">Invoice No: #PW-{{ order.id }}</span>
+            </div>
+        </div>
+
+        <!-- Info Details -->
+        <div class="invoice-details-grid">
+            <div class="invoice-bill-to">
+                <h3>Store Details</h3>
+                <strong>Perfume World Bangladesh</strong><br>
+                Bashundhara City Outlets, Level 1, Block C<br>
+                Dhaka-1205, Bangladesh<br>
+                Phone: 01781-474065
+            </div>
+            <div class="invoice-ship-to">
+                <h3>Delivery Address</h3>
+                <strong>{{ order.shipping_name }}</strong><br>
+                {{ order.shipping_address }}<br>
+                Phone: {{ order.shipping_phone }}<br>
+                Date: {{ order.created_at|date:"F d, Y H:i" }}
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Item Description</th>
+                    <th style="text-align: right;">Unit Price</th>
+                    <th style="text-align: center;">Quantity</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.product.name }}</strong><br>
+                            <span style="font-size: 12px; color: var(--text-muted);">Brand: {{ item.product.brand.name }} | Size: {{ item.product.size_ml }}</span>
+                        </td>
+                        <td style="text-align: right;">{{ item.price }} ৳</td>
+                        <td style="text-align: center;">{{ item.quantity }}</td>
+                        <td style="text-align: right;">{{ item.price }} ৳</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Summary Totals -->
+        <div class="invoice-totals">
+            <div class="invoice-totals-row">
+                <span>Payment Method</span>
+                <strong>{{ order.payment_method }}</strong>
+            </div>
+            <div class="invoice-totals-row">
+                <span>Payment Status</span>
+                {% if order.is_paid %}
+                    <span class="invoice-status-badge badge-paid">Paid</span>
+                {% else %}
+                    <span class="invoice-status-badge badge-unpaid">Pending (COD)</span>
+                {% endif %}
+            </div>
+            <div class="invoice-totals-row grand-total">
+                <span>Grand Total</span>
+                <span>{{ order.total_amount }} ৳</span>
+            </div>
+        </div>
+
+        <!-- Print Actions -->
+        <div style="text-align: center; border-top: 1px solid var(--border-color); padding-top: 30px;">
+            <button class="btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print Invoice</button>
+            <a href="{% url 'store:home' %}" class="btn-print" style="background-color: var(--secondary); color: var(--primary);">Go Back Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

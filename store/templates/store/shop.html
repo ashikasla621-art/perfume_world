@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Shop Perfumes - Perfume World{% endblock %}
+
+{% block extra_css %}
+<style>
+    .shop-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    /* FILTERS SIDEBAR */
+    .filters-sidebar {
+        border: 1px solid var(--border-color);
+        padding: 25px;
+        border-radius: 4px;
+        align-self: start;
+        background-color: var(--white);
+    }
+
+    .filter-widget {
+        margin-bottom: 30px;
+    }
+
+    .filter-title {
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 8px;
+        position: relative;
+    }
+
+    .filter-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 35px;
+        height: 2px;
+        background-color: var(--secondary);
+    }
+
+    .filter-list {
+        list-style: none;
+    }
+
+    .filter-list li {
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .filter-list a {
+        color: var(--text-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filter-list a:hover, .filter-list li.active a {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    .price-inputs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .price-inputs input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 13px;
+    }
+
+    .btn-filter {
+        width: 100%;
+        padding: 10px;
+        background-color: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-filter:hover {
+        background-color: var(--secondary);
+        color: var(--primary);
+    }
+
+    .btn-reset {
+        display: block;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    /* SHOP MAIN CONTENT */
+    .shop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .shop-results-count {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .shop-sorter select {
+        padding: 8px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--white);
+        font-size: 14px;
+        outline: none;
+        cursor: pointer;
+    }
+
+    /* GRID SYNC WITH HOME */
+    .shop-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 25px;
+    }
+
+    /* NO PRODUCTS FOUND */
+    .no-products {
+        text-align: center;
+        padding: 80px 0;
+        grid-column: 1 / -1;
+    }
+
+    .no-products i {
+        font-size: 48px;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+    }
+
+    .no-products h3 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .shop-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="shop-layout">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+            <form action="{% url 'store:shop' %}" method="get" id="filter-form">
+                <!-- Keep search query if present -->
+                {% if query %}
+                    <input type="hidden" name="q" value="{{ query }}">
+                {% endif %}
+
+                <!-- Category Filter -->
+                <div class="filter-widget">
+                    <h3 class="filter-title">Categories</h3>
+                    <ul class="filter-list">
+                        <li class="{% if not selected_category %}active{% endif %}">
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_brand %}brand={{ selected_brand }}&{% endif %}">All Categories</a>
+                        </li>
+                        {% for cat in categories %}
+                            <li class="{% if selected_category == cat.slug %}active{% endif %}">
+                                <a href="?{% if query %}q={{ query }}&{% endif %}category={{ cat.slug }}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}">
+                                    {{ cat.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Brand Filter -->
+                <div class="filter-widget">
+                    <h3 class="filter-title">Brands</h3>
+                    <ul class="filter-list">
+                        <li class="{% if not selected_brand %}active{% endif %}">
+                            <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}">All Brands</a>
+                        </li>
+                        {% for br in brands %}
+                            <li class="{% if selected_brand == br.slug %}active{% endif %}">
+                                <a href="?{% if query %}q={{ query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}brand={{ br.slug }}">
+                                    {{ br.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="filter-widget">
+                    <h3 class="filter-title">Price Range</h3>
+                    <div class="price-inputs">
+                        <input type="number" name="min_price" placeholder="Min" value="{{ min_price|default:'' }}">
+                        <input type="number" name="max_price" placeholder="Max" value="{{ max_price|default:'' }}">
+                    </div>
+                    {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                    {% endif %}
+                    {% if selected_brand %}
+                        <input type="hidden" name="brand" value="{{ selected_brand }}">
+                    {% endif %}
+                    {% if sort_by %}
+                        <input type="hidden" name="sort" value="{{ sort_by }}">
+                    {% endif %}
+                    <button type="submit" class="btn-filter">Apply Filter</button>
+                    <a href="{% url 'store:shop' %}" class="btn-reset">Reset All</a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Main Products Listing -->
+        <main>
+            <div class="shop-header">
+                <div class="shop-results-count">
+                    Found <strong>{{ products.count }}</strong> perfumes
+                </div>
+                <div class="shop-sorter">
+                    <select name="sort" onchange="applySort(this.value)">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="shop-products-grid">
+                {% for product in products %}
+                    <!-- Product Card -->
+                    <div class="product-card">
+                        {% if product.discount_price %}
+                            <div class="product-badge">Sale</div>
+                        {% endif %}
+                        <a href="{% url 'store:product_detail' product.slug %}" class="product-img">
+                            <img src="{{ product.image_url|default:'https://via.placeholder.com/200' }}" alt="{{ product.name }}">
+                        </a>
+                        <div class="product-details">
+                            <div>
+                                <div class="product-brand">{{ product.brand.name }}</div>
+                                <h3 class="product-name">
+                                    <a href="{% url 'store:product_detail' product.slug %}">{{ product.name }}</a>
+                                </h3>
+                            </div>
+                            <div>
+                                <div class="product-meta">
+                                    <div class="product-price">
+                                        {% if product.discount_price %}
+                                            <span style="color: red;">{{ product.discount_price }} ৳</span>
+                                            <span style="text-decoration: line-through; font-size: 13px; color: #888; margin-left: 5px;">{{ product.price }} ৳</span>
+                                        {% else %}
+                                            <span>{{ product.price }} ৳</span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="product-size">{{ product.size_ml }}</span>
+                                </div>
+                                <form action="{% url 'store:cart_add' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-add-cart">
+                                        <i class="fa fa-shopping-cart"></i> Add to cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="no-products">
+                        <i class="fa fa-search-minus"></i>
+                        <h3>No Perfumes Found</h3>
+                        <p>Try adjusting your search query or filters.</p>
+                        <a href="{% url 'store:shop' %}" class="btn-filter" style="display:inline-block; margin-top:20px; width:auto; padding:10px 25px;">View All Shop</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function applySort(sortValue) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('sort', sortValue);
+        window.location.search = urlParams.toString();
+    }
+</script>
+{% endblock %}
