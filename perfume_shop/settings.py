@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3xmoo3_-(&m3)72cz6r0chis40i29h=fc7jxb#+7#u!jcdv5v4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['perfume-world-8qqu.onrender.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
